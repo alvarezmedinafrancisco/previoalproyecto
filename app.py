@@ -5,7 +5,7 @@ app = Flask(__name__)
 url = 'https://api.nal.usda.gov/fdc/v1/foods/search'
 params = {
     'api_key': '1YeHW5ssRNnnsULz2f3nq5ZNYtQWfJYHlbtUwtyQ',
-    'query': 'manzana'
+    'query': 'apple'
 }
 
 
@@ -18,8 +18,8 @@ def home():
 def index1():
     return render_template('index.html')
 
-@app.route('/foods')
-def acerca():
+@app.route('/about')
+def about():
     return render_template('foods.html')
 
 @app.route('/foods')
@@ -28,7 +28,10 @@ def get_foods():
         'api_key': "1YeHW5ssRNnnsULz2f3nq5ZNYtQWfJYHlbtUwtyQ" ,
         'pageSize': 10
     }
-    food_name = request.get('food_name')
+    # read the search term from query string (e.g., /foods?food_name=apple)
+    food_name = request.args.get('food_name', '').strip()
+    if not food_name:
+        food_name = 'apple'
     params['query'] = food_name
     
     try:
