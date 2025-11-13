@@ -2,9 +2,13 @@ from flask import Flask, render_template , request
 import requests
 
 app = Flask(__name__)
-
-api_key = '1YeHW5ssRNnnsULz2f3nq5ZNYtQWfJYHlbtUwtyQ'
 url = 'https://api.nal.usda.gov/fdc/v1/foods/search'
+params = {
+    'api_key': '1YeHW5ssRNnnsULz2f3nq5ZNYtQWfJYHlbtUwtyQ',
+    'query': 'manzana'
+}
+
+
 
 @app.route('/')
 def home():
@@ -21,7 +25,7 @@ def acerca():
 @app.route('/foods')
 def get_foods():
     params = {
-        'api_key': api_key,
+        'api_key': "1YeHW5ssRNnnsULz2f3nq5ZNYtQWfJYHlbtUwtyQ" ,
         'pageSize': 10
     }
     food_name = request.get('food_name')
