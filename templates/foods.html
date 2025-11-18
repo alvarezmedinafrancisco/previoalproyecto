@@ -3,17 +3,104 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <title>Resultados – NutriAPI</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB"
+          crossorigin="anonymous">
 </head>
-<body>
-    <h1>{{foods}}</h1>
-    <h1>{{ food_name }}</h1>
-    <h1>{{error}}</h1>
+<body style="background-color: bisque;">
+<nav class="navbar navbar-expand-lg bg-body-tertiary" style="background-color: bisque;">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="{{ url_for('index') }}">NutriAPI</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+            data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+            aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item">
+          <a class="nav-link" href="{{ url_for('index') }}">Inicio</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link active" aria-current="page" href="{{ url_for('get_foods') }}">Resultados</a>
+        </li>
+      </ul>
+      <form class="d-flex" role="search" method="get" action="{{ url_for('get_foods') }}">
+        <input class="form-control me-2" type="search" name="food_name"
+               placeholder="Buscar alimento..." aria-label="Search" value="{{ food_name }}">
+        <button class="btn btn-outline-success" type="submit">Buscar</button>
+      </form>
+    </div>
+  </div>
+</nav>
 
-    
-    
+<div class="container py-4">
+    <h2 class="mb-4">Resultados para: <span class="text-primary">{{ food_name }}</span></h2>
 
-            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+    {% if error %}
+        <div class="alert alert-danger">
+            {{ error }}
+        </div>
+    {% endif %}
+
+    {% if foods and foods|length > 0 %}
+        <div class="row row-cols-1 row-cols-md-3 g-4">
+            {% for food in foods %}
+                {% set ns = namespace(energy=None, energy_unit=None, protein=None, protein_unit=None) %}
+                {% for nutrient in food.foodNutrients %}
+                    {% if nutrient.nutrientName == 'Energy' %}
+                        {% set ns.energy = nutrient.value %}
+                        {% set ns.energy_unit = nutrient.unitName %}
+                    {% elif nutrient.nutrientName == 'Protein' %}
+                        {% set ns.protein = nutrient.value %}
+                        {% set ns.protein_unit = nutrient.unitName %}
+                    {% endif %}
+                {% endfor %}
+
+                <div class="col">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ food.description }}</h5>
+                            {% if food.brandOwner %}
+                                <h6 class="card-subtitle mb-2 text-muted">{{ food.brandOwner }}</h6>
+                            {% endif %}
+
+                            <p class="card-text mb-1">
+                                <strong>FDC ID:</strong> {{ food.fdcId }}
+                            </p>
+
+                            {% if ns.energy %}
+                                <p class="card-text mb-1">
+                                    <strong>Energía:</strong> {{ ns.energy }} {{ ns.energy_unit }}
+                                </p>
+                            {% endif %}
+
+                            {% if ns.protein %}
+                                <p class="card-text mb-1">
+                                    <strong>Proteína:</strong> {{ ns.protein }} {{ ns.protein_unit }}
+                                </p>
+                            {% endif %}
+
+                            {% if not ns.energy and not ns.protein %}
+                                <p class="card-text text-muted">
+                                    No hay datos de energía/proteína en este resultado.
+                                </p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-warning">
+            No se encontraron alimentos para esa búsqueda.
+        </div>
+    {% endif %}
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+        crossorigin="anonymous"></script>
 </body>
 </html>
